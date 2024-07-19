@@ -1,10 +1,10 @@
 import cv2
 import os
-import numpy as np
 
 # Define the paths for the source and destination folders
 source_folder = 'images'
 destination_folder = 'output'
+log_file_path = 'detection_log.txt'
 
 # Create the destination folder if it doesn't exist
 os.makedirs(destination_folder, exist_ok=True)
@@ -16,7 +16,8 @@ def crop_face(image_path, output_path):
     # Read the image
     image = cv2.imread(image_path)
     if image is None:
-        print(f"Error opening image {image_path}.")
+        log_message = f"Error opening image {os.path.basename(image_path)}.\n"
+        write_log(log_message)
         return
 
     # Convert image to grayscale for face detection
@@ -25,9 +26,10 @@ def crop_face(image_path, output_path):
     # Detect faces in the image
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
-    # If no faces are detected, skip this image
+    # If no faces are detected, log the issue and skip this image
     if len(faces) == 0:
-        print(f"No face detected in {image_path}. Skipping...")
+        log_message = f"\033[1mNo face detected in {os.path.basename(image_path)}.\033[0m\n"
+        write_log(log_message)
         return
 
     # Iterate over all detected faces
@@ -44,8 +46,16 @@ def crop_face(image_path, output_path):
 
         # Save the cropped image without resizing
         cv2.imwrite(output_path, cropped)
-        print(f"Cropped image saved to {output_path}")
+        log_message = f"Cropped image saved to {output_path}\n"
+        write_log(log_message)
         return  # Process only the first detected face
+
+def write_log(message):
+    try:
+        with open(log_file_path, 'a') as log_file:
+            log_file.write(message)
+    except Exception as e:
+        print(f"Failed to write to log file: {e}")
 
 # Process each image in the source folder
 for filename in os.listdir(source_folder):
