@@ -4,7 +4,7 @@ import os
 # Define the paths for the source and destination folders
 source_folder = 'images'
 destination_folder = 'output'
-log_file_path = 'detection_log.txt'
+log_file_path = 'log.txt'
 
 # Create the destination folder if it doesn't exist
 os.makedirs(destination_folder, exist_ok=True)
