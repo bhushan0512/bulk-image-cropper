@@ -25,6 +25,11 @@ def crop_face(image_path, output_path):
     # Detect faces in the image
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
+    # If no faces are detected, skip this image
+    if len(faces) == 0:
+        print(f"No face detected in {image_path}. Skipping...")
+        return
+
     # Iterate over all detected faces
     for (x, y, w, h) in faces:
         # Expand the bounding box by 30% to ensure extra margin around the face
@@ -37,23 +42,10 @@ def crop_face(image_path, output_path):
         # Crop the face region with additional margin
         cropped = image[startY:endY, startX:endX]
 
-        # Ensure the cropped region is square (1x1 aspect ratio)
-        height, width, _ = cropped.shape
-        if height != width:
-            side_length = min(height, width)
-            start_x = (width - side_length) // 2
-            start_y = (height - side_length) // 2
-            cropped = cropped[start_y:start_y + side_length, start_x:start_x + side_length]
-
-        # Resize the cropped image to 800x800 pixels
-        resized = cv2.resize(cropped, (800, 800), interpolation=cv2.INTER_AREA)
-
-        # Save the cropped image
-        cv2.imwrite(output_path, resized)
+        # Save the cropped image without resizing
+        cv2.imwrite(output_path, cropped)
         print(f"Cropped image saved to {output_path}")
         return  # Process only the first detected face
-
-    print(f"No face detected in {image_path}. Skipping...")
 
 # Process each image in the source folder
 for filename in os.listdir(source_folder):
